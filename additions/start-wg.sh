@@ -2,7 +2,7 @@
 
 if [ "$(ls /etc/wireguard/*.conf 2>/dev/null | wc -l)" == "0" ]; then
   echo "---No WireGuard .conf file found!---"
-  kill -s SIGTERM 1
+  kill -15 1 > /dev/null 2>&1
   sleep infinity
 else
   WG_CONF_FILE=$(ls /etc/wireguard/*.conf 2>/dev/null | sort -V | head -1)
@@ -12,10 +12,13 @@ else
   fi
 fi
 
-if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
-ip -6 route del default via fd17::1 dev eth0
-elif ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
-ip route del default via 172.17.0.1 dev eth0
+if [ -z ${DISABLE_TUNNEL_MODE} ]; then
+    if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
+        ip -6 route del default via fd17::1 dev eth0
+    fi
+    if ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
+        ip route del default via 172.17.0.1 dev eth0
+    fi
 fi
 
 echo "---Starting WireGuard tunnel---"
@@ -26,13 +29,14 @@ if [ ${EXIT_STATUS} != 0 ]; then
   echo "---Can't start WireGuard tunnel, please check your config!---"
 else
   echo "---WireGuard tunnel started successfully...---"
-  if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
-        echo "Public IP: $(wget -qO- ipv4.icanhazip.com)"
-  elif ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
-        echo "Public IP: $(wget -qO- ipv6.icanhazip.com)"
-  else
-        echo "Public IP: $(wget -qO- -T 3 ipv4.icanhazip.com) $(wget -qO- -T 3 ipv6.icanhazip.com)"
-  fi
+    PUBLIC_IP4=$(wget -qO- -T 3 ipv4.icanhazip.com > /dev/null 2>&1)
+    if [ $? -eq 0 ]; then
+        echo "Public IPv4: $(wget -qO- -T 3 ipv4.icanhazip.com)"
+    fi
+    PUBLIC_IP6=$(wget -qO- -T 3 ipv6.icanhazip.com > /dev/null 2>&1)
+    if [ $? -eq 0 ]; then
+        echo "Public IPv6: $(wget -qO- -T 3 ipv6.icanhazip.com)"
+    fi
   if [ ! -z ${LAN_NETWORK} ]; then
   ip route add $LAN_NETWORK via 172.17.0.1 dev eth0
   fi
@@ -47,7 +51,7 @@ while true
 do
 status=$(wg)
 if [[ -z "$status" ]]; then
-   kill -s SIGTERM 1
+   kill -15 1 > /dev/null 2>&1
    sleep infinity
    break
 else
