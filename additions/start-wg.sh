@@ -12,6 +12,12 @@ else
   fi
 fi
 
+if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
+ip -6 route del default via fd17::1 dev eth0
+elif ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
+ip route del default via 172.17.0.1 dev eth0
+fi
+
 echo "---Starting WireGuard tunnel---"
 wg-quick up wg0 > /dev/null 2>&1
 EXIT_STATUS=$?
@@ -21,10 +27,8 @@ if [ ${EXIT_STATUS} != 0 ]; then
 else
   echo "---WireGuard tunnel started successfully...---"
   if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
-        ip6tables -P OUTPUT DROP
         echo "Public IP: $(wget -qO- ipv4.icanhazip.com)"
   elif ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
-        iptables -P OUTPUT DROP
         echo "Public IP: $(wget -qO- ipv6.icanhazip.com)"
   else
         echo "Public IP: $(wget -qO- -T 3 ipv4.icanhazip.com) $(wget -qO- -T 3 ipv6.icanhazip.com)"
