@@ -35,7 +35,7 @@ else
   if [ ! -z ${LAN_NETWORK6} ]; then
   ip -6 route add $LAN_NETWORK6 via fd17::1 dev eth0
   fi
-  ./microsocks -q -i 0.0.0.0 -p 1080 &
+  ./microsocks -q -i :: -p 1080 &
   privoxy /etc/privoxy/config
 fi
 
