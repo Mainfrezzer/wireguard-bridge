@@ -14,10 +14,10 @@ fi
 
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
     if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
-        ip -6 route del default via fd17::1 dev eth0
+	ip -6 route flush default
     fi
     if ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
-        ip route del default via 172.17.0.1 dev eth0
+        ip route flush default
     fi
 fi
 
