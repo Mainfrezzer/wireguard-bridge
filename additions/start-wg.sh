@@ -12,6 +12,11 @@ else
   fi
 fi
 
+#Grab Gateway before removing it
+IP4GATEWAY=$(ip route | awk '/default/ { print $3 }')
+IP6GATEWAY=$(ip -6 route | awk '/default/ { print $3 }')
+
+
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
     if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
 	ip -6 route flush default
@@ -37,11 +42,21 @@ else
     if [ $? -eq 0 ]; then
         echo "Public IPv6: $(wget -qO- -T 3 ipv6.icanhazip.com)"
     fi
-  if [ ! -z ${LAN_NETWORK} ]; then
-  ip route add $LAN_NETWORK via 172.17.0.1 dev eth0
+  if [ ! -z ${LAN_NETWORK} ] && [ ! -z ${IP4GATEWAY} ]; then
+    IFS=',' 
+    set -- ${LAN_NETWORK}
+    for network in "$@"; do
+      network=$(echo "$network" | xargs)
+      ip route add "${network}" via $IP4GATEWAY dev eth0 onlink
+    done
   fi
-  if [ ! -z ${LAN_NETWORK6} ]; then
-  ip -6 route add $LAN_NETWORK6 via fd17::1 dev eth0
+  if [ ! -z ${LAN_NETWORK6} ]  && [ ! -z ${IP6GATEWAY} ]; then
+    IFS=',' 
+    set -- ${LAN_NETWORK6}
+    for network6 in "$@"; do
+      network6=$(echo "$network6" | xargs)
+      ip -6 route add "${network6}" via $IP6GATEWAY dev eth0 onlink
+    done  
   fi
   ./microsocks -q -i :: -p 1080 &
   privoxy /etc/privoxy/config
