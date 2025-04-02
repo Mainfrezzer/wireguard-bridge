@@ -59,6 +59,7 @@ else
     done  
   fi
   ./microsocks -q -i :: -p 1080 &
+  sed -i "s|listen-address \[::\]:.*|listen-address [::]:${HTTPPORT}|" /etc/privoxy/config
   privoxy /etc/privoxy/config
 fi
 
