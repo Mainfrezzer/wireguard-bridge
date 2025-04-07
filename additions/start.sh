@@ -7,6 +7,10 @@ term_handler() {
   exit 143;
 }
 
+if [ ! -z "${CONNECTED_CONTAINERS}" ]; then
+  /start-connected-containers.sh &
+fi
+
 trap 'kill ${!}; term_handler' SIGTERM
 /start-wg.sh &
 killpid="$!"

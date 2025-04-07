@@ -13,7 +13,8 @@ RUN apk add --update --no-cache \
 
 FROM alpine:latest
 ENV HTTPPORT=8080
-RUN apk add --no-cache iptables ip6tables wireguard-tools-wg-quick privoxy
+ENV CONNECTED_CONTAINERS=""
+RUN apk add --no-cache iptables ip6tables wireguard-tools-wg-quick privoxy socat
 
 RUN sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' /usr/bin/wg-quick
 
