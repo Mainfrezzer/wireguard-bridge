@@ -5,10 +5,15 @@ if [ "$(ls /etc/wireguard/*.conf 2>/dev/null | wc -l)" == "0" ]; then
   kill -15 1 > /dev/null 2>&1
   sleep infinity
 else
-  WG_CONF_FILE=$(ls /etc/wireguard/*.conf 2>/dev/null | sort -V | head -1)
-  echo "---WireGuard config file found: ${WG_CONF_FILE}---"
+  if [ "${ENABLE_RANDOM}" == "1" ]; then
+    WG_CONF_FILE=$(ls /etc/wireguard/*.conf 2>/dev/null | grep -v "/etc/wireguard/wg0.conf" | shuf -n 1)
+    echo "---Random WireGuard config file selected: ${WG_CONF_FILE}---"
+  else
+    WG_CONF_FILE=$(ls /etc/wireguard/*.conf 2>/dev/null | sort -V | head -1)
+    echo "---WireGuard config file found: ${WG_CONF_FILE}---"
+  fi
   if [ "${WG_CONF_FILE}" != "/etc/wireguard/wg0.conf" ]; then
-    mv "${WG_CONF_FILE}" "/etc/wireguard/wg0.conf"
+    cp "${WG_CONF_FILE}" "/etc/wireguard/wg0.conf"
   fi
 fi
 
