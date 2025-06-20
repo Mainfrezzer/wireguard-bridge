@@ -24,4 +24,4 @@ docker run --name wireguard-bridge\
     -d ghcr.io/mainfrezzer/adguardhome
 </pre>
 
-* That means the container will not ensure that all your traffic is routed through the VPN. This is useful if you want your containers only to reach specific VPN IPs but otherwise want to use your internet connection
+'*' That means the container will not ensure that all your traffic is routed through the VPN. This is useful if you want your containers only to reach specific VPN IPs but otherwise want to use your internet connection
