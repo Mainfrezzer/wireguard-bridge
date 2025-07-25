@@ -21,7 +21,7 @@ docker run --name wireguard-bridge\
     -e CONNECTED_CONTAINERS= `#Optional feature of ich777 container`\
     -e ENABLE_RANDOM=0 `#Enables Random mode for the server chosen, picks a file from /etc/wireguard at random`\
     -e DISABLE_TUNNEL_MODE= `#Setting ANY value will disable the VPN tunnel enforcement.*`\
-    -d ghcr.io/mainfrezzer/adguardhome
+    -d ghcr.io/mainfrezzer/wg-bridge
 </pre>
 
 '*' That means the container will not ensure that all your traffic is routed through the VPN. This is useful if you want your containers only to reach specific VPN IPs but otherwise want to use your internet connection
