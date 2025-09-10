@@ -17,7 +17,7 @@ else
     echo "$FAILURE_COUNT" > "$HEALTHCHECK_FILE"
 
     if [ "$FAILURE_COUNT" -ge 12 ]; then
-        wg-quick down wg0 > /dev/null 2>&1
+        wg-quick down wg0 && wg-quick up wg0 > /dev/null 2>&1
     fi
     exit 1
 fi
