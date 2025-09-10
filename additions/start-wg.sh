@@ -24,7 +24,7 @@ IP6GATEWAY=$(ip -6 route | awk '/default/ { print $3 }')
 
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
     if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
-	ip -6 route flush default
+        ip -6 route flush default
     fi
     if ! grep -q "0.0.0.0/0" /etc/wireguard/wg0.conf; then
         ip route flush default
@@ -76,6 +76,6 @@ if [[ -z "$status" ]]; then
    sleep infinity
    break
 else
-   sleep 1
+   sleep 2
 fi
 done
