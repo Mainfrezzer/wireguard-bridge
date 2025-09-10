@@ -23,6 +23,7 @@ docker run --name wireguard-bridge\
     -e CONNECTED_CONTAINERS= `#Optional feature of ich777 container`\
     -e ENABLE_RANDOM=0 `#Enables Random mode for the server chosen, picks a file from /etc/wireguard at random`\
     -e DISABLE_TUNNEL_MODE= `#Setting ANY value will disable the VPN tunnel enforcement.*`\
+    -e HEALTH_URL_CHECK= `#Custom URL or IP to ping for the healthcheck`\
     -d ghcr.io/mainfrezzer/wg-bridge
 </pre>
 

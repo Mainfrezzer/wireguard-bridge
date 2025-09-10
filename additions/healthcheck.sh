@@ -11,6 +11,9 @@ FAILURE_COUNT=$(cat "$HEALTHCHECK_FILE")
 PEER=$(grep -i "^Endpoint" "/etc/wireguard/wg0.conf" | head -n1 | cut -d'=' -f2 | tr -d ' ')
 HOST=$(echo "$PEER" | rev | cut -d':' -f2- | rev)
 HOST=$(echo "$HOST" | sed 's/^\[//;s/\]$//')
+if [ ! -z ${HEALTH_URL_CHECK} ]; then
+HOST=$HEALTH_URL_CHECK
+fi
 ping -I wg0 -c 3 -W 20 "$HOST" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     if [ "$(cat "$HEALTHCHECK_FILE")" != "0" ]; then
