@@ -1,5 +1,9 @@
 #!/bin/sh
 echo "---Starting...---"
+#healthcheck
+if [ -e /tmp/failure ]; then
+    rm /tmp/failure
+fi
 term_handler() {
   echo "---Stopping WireGuard tunnel---"
   wg-quick down wg0 > /dev/null 2>&1

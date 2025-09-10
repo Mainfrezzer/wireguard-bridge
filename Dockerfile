@@ -20,5 +20,5 @@ RUN sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_
 
 COPY /additions /
 COPY --from=builder /build/microsocks .
-
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 CMD /bin/sh /healthcheck.sh
 ENTRYPOINT ["/start.sh"]
