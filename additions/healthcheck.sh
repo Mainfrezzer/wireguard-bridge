@@ -1,5 +1,3 @@
-#TODO add healthcheck for non tunnel
-if [ -z ${DISABLE_TUNNEL_MODE} ]; then
 HEALTHCHECK_FILE="/tmp/failure"
 if [ ! -f "$HEALTHCHECK_FILE" ]; then
     echo 0 > "$HEALTHCHECK_FILE"
@@ -7,14 +5,21 @@ fi
 
 FAILURE_COUNT=$(cat "$HEALTHCHECK_FILE")
 
-
+if [ -z ${DISABLE_TUNNEL_MODE} ]; then
 PEER=$(grep -i "^Endpoint" "/etc/wireguard/wg0.conf" | head -n1 | cut -d'=' -f2 | tr -d ' ')
 HOST=$(echo "$PEER" | rev | cut -d':' -f2- | rev)
 HOST=$(echo "$HOST" | sed 's/^\[//;s/\]$//')
+HOST=$(traceroute -n -i wg0 "$HOST" | awk 'NR==2 {print $2}')
+else
+PEER=$(grep -i "^AllowedIP" "/etc/wireguard/wg0.conf" | head -n1 | cut -d'=' -f2 | tr -d ' ' | awk -F',' '{print $1}' | awk -F'/' '{print $1}')
+HOST=$(traceroute -n -i wg0 "$PEER" | awk 'NR==2 {print $2}')
+fi
+
 if [ ! -z ${HEALTH_URL_CHECK} ]; then
 HOST=$HEALTH_URL_CHECK
 fi
-ping -I wg0 -c 3 -W 20 "$HOST" > /dev/null 2>&1
+
+ping -I wg0 -c 1 -W 20 "$HOST" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     if [ "$(cat "$HEALTHCHECK_FILE")" != "0" ]; then
       echo "0" > "$HEALTHCHECK_FILE"
@@ -30,6 +35,3 @@ else
     fi
     exit 1
 fi
-
-fi
-exit 0
