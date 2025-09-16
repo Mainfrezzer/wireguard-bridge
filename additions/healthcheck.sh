@@ -10,9 +10,12 @@ HOST=$HEALTH_URL_CHECK
 else
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
 PEER=$(grep -i "^Endpoint" "/etc/wireguard/wg0.conf" | head -n1 | cut -d'=' -f2 | tr -d ' ')
-HOST=$(echo "$PEER" | rev | cut -d':' -f2- | rev)
-HOST=$(echo "$HOST" | sed 's/^\[//;s/\]$//')
-HOST=$(traceroute -m 1 -w 1 -n -i wg0 "$HOST" | awk 'NR==2 {print $2}')
+HOST1=$(echo "$PEER" | rev | cut -d':' -f2- | rev)
+HOST2=$(echo "$HOST1" | sed 's/^\[//;s/\]$//')
+HOST=$(traceroute -m 1 -w 1 -n -i wg0 "$HOST2" | awk 'NR==2 {print $2}')
+if [ "$HOST" = "*" ]; then
+    HOST="$HOST2"
+fi
 else
 PEER=$(grep -i "^AllowedIP" "/etc/wireguard/wg0.conf" | head -n1 | cut -d'=' -f2 | tr -d ' ' | awk -F',' '{print $1}' | awk -F'/' '{print $1}')
 HOST=$(traceroute -m 1 -w 1 -n -i wg0 "$PEER" | awk 'NR==2 {print $2}')
