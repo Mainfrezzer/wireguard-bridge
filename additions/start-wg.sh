@@ -22,6 +22,11 @@ IP4GATEWAY=$(ip route | awk '/default/ { print $3 }')
 IP6GATEWAY=$(ip -6 route | awk '/default/ { print $3 }')
 
 
+iptables -I OUTPUT -d 192.168.0.0/16 -j ACCEPT
+iptables -I OUTPUT -d 172.16.0.0/12 -j ACCEPT
+iptables -I OUTPUT -d 10.0.0.0/8 -j ACCEPT
+
+
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
     if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
         ip -6 route flush default
@@ -39,6 +44,11 @@ if [ ${EXIT_STATUS} != 0 ]; then
   echo "---Can't start WireGuard tunnel, please check your config!---"
 else
   echo "---WireGuard tunnel started successfully...---"
+    if [ -z ${DISABLE_TUNNEL_MODE} ]; then
+    FWMARK=$(wg show wg0 fwmark)
+    iptables -A OUTPUT ! -o wg0 -m mark ! --mark "$FWMARK" -m addrtype ! --dst-type LOCAL -j REJECT
+    ip6tables -A OUTPUT ! -o wg0 -m mark ! --mark "$FWMARK" -m addrtype ! --dst-type LOCAL -j REJECT
+    fi
     PUBLIC_IP4=$(wget -qO- -T 3 ipv4.icanhazip.com > /dev/null 2>&1)
     if [ $? -eq 0 ]; then
         echo "Public IPv4: $(wget -qO- -T 3 ipv4.icanhazip.com)"
@@ -68,20 +78,4 @@ else
   privoxy /etc/privoxy/config
 fi
 
-while true
-do
-status=$(wg)
-if [[ -z "$status" ]]; then
-  if [ "$(iptables -L OUTPUT -n | grep -E 'Chain OUTPUT' | awk '{print $4}')" != "DROP)" ]; then
-      iptables -P OUTPUT DROP
-      ip6tables -P OUTPUT DROP
-  fi
-  sleep 1
-else
-  if [ "$(iptables -L OUTPUT -n | grep -E 'Chain OUTPUT' | awk '{print $4}')" != "ACCEPT)" ]; then
-      iptables -P OUTPUT ACCEPT
-      ip6tables -P OUTPUT ACCEPT
-  fi
-  sleep 2
-fi
-done
+tail -f /dev/null
