@@ -72,10 +72,16 @@ while true
 do
 status=$(wg)
 if [[ -z "$status" ]]; then
-   kill -15 1 > /dev/null 2>&1
-   sleep infinity
-   break
+  if [ "$(iptables -L OUTPUT -n | grep -E 'Chain OUTPUT' | awk '{print $4}')" != "DROP)" ]; then
+      iptables -P OUTPUT DROP
+      ip6tables -P OUTPUT DROP
+  fi
+  sleep 1
 else
-   sleep 2
+  if [ "$(iptables -L OUTPUT -n | grep -E 'Chain OUTPUT' | awk '{print $4}')" != "ACCEPT)" ]; then
+      iptables -P OUTPUT ACCEPT
+      ip6tables -P OUTPUT ACCEPT
+  fi
+  sleep 2
 fi
 done
