@@ -19,7 +19,7 @@ docker run --name wireguard-bridge\
     -p 8080:8080/tcp `#Privoxy`\
     -e LAN_NETWORK=192.168.3.0/24 `#supports multiple networks, use "," as divider`\
     -e LAN_NETWORK6=fd00::/64 `#supports multiple networks, use "," as divider`\
-    -e HTTPPORT=8118 `#Privoxy Port, default is 8080`\
+    -e HTTPPORT=8080 `#Privoxy Port, default is 8080`\
     -e CONNECTED_CONTAINERS= `#Optional feature of ich777 container`\
     -e ENABLE_RANDOM=0 `#Enables Random mode for the server chosen, picks a file from /etc/wireguard at random`\
     -e DISABLE_TUNNEL_MODE= `#Setting ANY value will disable the VPN tunnel enforcement.*`\
