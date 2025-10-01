@@ -28,6 +28,3 @@ docker run --name wireguard-bridge\
 </pre>
 
 '*' That means the container will not ensure that all your traffic is routed through the VPN. This is useful if you want your containers only to reach specific VPN IPs but otherwise want to use your internet connection
-
-### Userspace
-if you need a userspace version, the tag is ```ghcr.io/mainfrezzer/wg-bridge:userspace```
