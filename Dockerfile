@@ -10,11 +10,23 @@ RUN apk add --update --no-cache \
       make && \
       cp ./microsocks ..
 
+#Userspace fallback
+FROM golang:1.25.1-alpine AS builder2
+RUN apk add --no-cache git
+WORKDIR /src
+RUN git clone https://github.com/WireGuard/wireguard-go
+WORKDIR /src/wireguard-go
+RUN go build -o /wg .
+#---------
 
 FROM alpine:latest
 ENV HTTPPORT=8080
 ENV CONNECTED_CONTAINERS=""
 RUN apk add --no-cache iptables ip6tables wireguard-tools-wg-quick privoxy socat
+
+#Userspace fallback
+COPY --from=builder2 /wg /usr/bin/wireguard-go
+#---------
 
 RUN sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_valid_mark=1|[[ $proto == -4 ]] \&\& [[ $(sysctl -n net.ipv4.conf.all.src_valid_mark) != 1 ]] \&\& cmd sysctl -q net.ipv4.conf.all.src_valid_mark=1|' /usr/bin/wg-quick
 

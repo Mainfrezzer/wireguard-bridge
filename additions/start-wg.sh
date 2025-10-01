@@ -38,6 +38,12 @@ if [ -z ${DISABLE_TUNNEL_MODE} ]; then
 fi
 
 echo "---Starting WireGuard tunnel---"
+#Userspace fallback
+mkdir -p /dev/net
+mknod /dev/net/tun c 10 200
+chmod 600 /dev/net/tun
+sleep 1
+#---------
 wg-quick up wg0 > /dev/null 2>&1
 EXIT_STATUS=$?
 
