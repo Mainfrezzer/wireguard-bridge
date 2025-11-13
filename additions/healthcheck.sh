@@ -33,7 +33,8 @@ else
     echo "$FAILURE_COUNT" > "$HEALTHCHECK_FILE"
 
     if [ "$FAILURE_COUNT" -ge 6 ]; then
-        wg-quick down wg0 && wg-quick up wg0 > /dev/null 2>&1
+        wg-quick down wg0 > /dev/null 2>&1
+        wg-quick up wg0 > /dev/null 2>&1
         echo 0 > "$HEALTHCHECK_FILE"
     fi
     exit 1
