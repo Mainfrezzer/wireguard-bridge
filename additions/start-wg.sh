@@ -49,6 +49,7 @@ EXIT_STATUS=$?
 
 if [ ${EXIT_STATUS} != 0 ]; then
   echo "---Can't start WireGuard tunnel, please check your config!---"
+  kill -15 1 > /dev/null 2>&1
 else
   echo "---WireGuard tunnel started successfully...---"
     if [ -z ${DISABLE_TUNNEL_MODE} ]; then
