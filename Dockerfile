@@ -10,13 +10,6 @@ RUN apk add --update --no-cache \
       make && \
       cp ./microsocks ..
 
-#Workaround for openresolv issue
-FROM alpine:latest AS openresolv
-RUN apk --no-cache add alpine-sdk coreutils cmake sudo bash git
-COPY /build /tmp/openresolv/
-WORKDIR /tmp/openresolv/
-RUN mkdir -p /tmp/tmp/ && abuild-keygen -a -i -n && abuild -F checksum && abuild -F -r && find /root/packages/ -name "*.apk" -exec cp {} /tmp/tmp \;
-
 #Userspace fallback
 FROM golang:alpine AS builder2
 RUN apk add --no-cache git
@@ -39,11 +32,6 @@ RUN sed -i 's|\[\[ $proto == -4 \]\] && cmd sysctl -q net\.ipv4\.conf\.all\.src_
 
 COPY /additions /
 COPY --from=builder /build/microsocks .
-
-#Workaround for openresolv
-COPY --from=openresolv /tmp/tmp/ .
-RUN apk add --allow-untrusted /openresolv-3.17.3-r0.apk
-RUN rm /*.apk
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 CMD /bin/sh /healthcheck.sh
 ENTRYPOINT ["/start.sh"]

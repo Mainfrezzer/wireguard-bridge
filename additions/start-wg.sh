@@ -17,6 +17,10 @@ else
   fi
 fi
 
+#Openresolv shenanigans
+cat /etc/resolv.conf | resolvconf -a control > /dev/null 2>&1
+resolvconf -u > /dev/null 2>&1
+
 #Grab Gateway before removing it
 IP4GATEWAY=$(ip route | awk '/default/ { print $3 }')
 IP6GATEWAY=$(ip -6 route | awk '/default/ { print $3 }')
