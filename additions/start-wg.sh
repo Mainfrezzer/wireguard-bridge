@@ -84,6 +84,8 @@ else
           IFS=$OLDIFS
           network6=$(echo "$network6" | xargs)
           ip -6 route add "$network6" via "$IP6GATEWAY" dev eth0 onlink
+          #specifically needed for GUA in Lan, if used
+          ip6tables -I OUTPUT -d "$network6" -j ACCEPT
           IFS=','
       done
       IFS=$OLDIFS
