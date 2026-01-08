@@ -77,13 +77,16 @@ else
       ip route add "${network}" via $IP4GATEWAY dev eth0 onlink
     done
   fi
-  if [ ! -z ${LAN_NETWORK6} ]  && [ ! -z ${IP6GATEWAY} ]; then
-    IFS=',' 
-    set -- ${LAN_NETWORK6}
-    for network6 in "$@"; do
-      network6=$(echo "$network6" | xargs)
-      ip -6 route add "${network6}" via $IP6GATEWAY dev eth0 onlink
-    done  
+  if [ ! -z "${LAN_NETWORK6}" ] && [ ! -z "${IP6GATEWAY}" ]; then
+      OLDIFS=$IFS
+      IFS=','
+      for network6 in $LAN_NETWORK6; do
+          IFS=$OLDIFS
+          network6=$(echo "$network6" | xargs)
+          ip -6 route add "$network6" via "$IP6GATEWAY" dev eth0 onlink
+          IFS=','
+      done
+      IFS=$OLDIFS
   fi
   ./microsocks -q -i :: -p 1080 &
   sed -i "s|listen-address \[::\]:.*|listen-address [::]:${HTTPPORT}|" /etc/privoxy/config
