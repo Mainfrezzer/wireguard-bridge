@@ -30,7 +30,8 @@ iptables -I OUTPUT -d 192.168.0.0/16 -j ACCEPT
 iptables -I OUTPUT -d 172.16.0.0/12 -j ACCEPT
 iptables -I OUTPUT -d 10.0.0.0/8 -j ACCEPT
 ip6tables -I OUTPUT -d fc00::/7 -j ACCEPT
-
+ip6tables -I OUTPUT -d fe80::/10 -j ACCEPT
+ip6tables -I OUTPUT -d ff00::/8 -j ACCEPT
 
 if [ -z ${DISABLE_TUNNEL_MODE} ]; then
     if ! grep -q "::/0" /etc/wireguard/wg0.conf; then
