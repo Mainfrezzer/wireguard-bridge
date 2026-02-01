@@ -95,8 +95,5 @@ else
   sed -i "s|listen-address \[::\]:.*|listen-address [::]:${HTTPPORT}|" /etc/privoxy/config
   privoxy /etc/privoxy/config
 fi
-# Workaround for Dockers broken ipv6 gateway handling
-# this keeps incoming connections alive, god knows why it dies without
-ping "${IP6GATEWAY}" > /dev/null 2>&1 &
 
 sleep infinity
